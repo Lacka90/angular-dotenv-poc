@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - setup_remote_docker:   # (2)
+          docker_layer_caching: true # (3)
+
+      - restore_cache:
+          name: Restore Npm Package Cache
+          keys:
+            - packages-{{ checksum "package-lock.json" }}
+
+      - run:
+          working_directory: ~/project/functions
+          name: Install Dependencies
+          command: npm install
+
+      - save_cache:
+          name: Save Npm Package Cache
+          key: packages-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.cache/npm
+
+      - run:
+          name: Build
+          command: npm run build
+
+notify:
+  webhooks:
+    - url: https://us-central1-ci-dashboard-db276.cloudfunctions.net/dashboard/
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
