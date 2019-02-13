@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { convict, dotenv } from './config';
+import { convict } from './config/convict';
+import { dotenv } from './config/dotenv';
+import { ConfigService } from './config.service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +11,8 @@ import { convict, dotenv } from './config';
 export class AppComponent {
   convict = convict;
   dotenv = dotenv;
+
+  config = this.configService.getConfig();
+
+  constructor(private configService: ConfigService) {}
 }
